@@ -31,7 +31,7 @@ def run_tracking(video_path,
             if r.boxes.id is None:
                 continue
 
-            boxes = r.boxes.xyxy.cpu().numpy()
+            boxes = r.boxes.xywh.cpu().numpy()
             ids = r.boxes.id.cpu().numpy().astype(int)
             confs = r.boxes.conf.cpu().numpy()
             yield frame_idx, r.orig_img, boxes, ids, confs
