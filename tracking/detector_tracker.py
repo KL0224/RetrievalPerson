@@ -8,7 +8,8 @@ def run_tracking(video_path,
                  project_name: str = None, 
                  name: str = None,
                  show: bool = False,
-                 verbose: bool = False):
+                 verbose: bool = False,
+                 device: str = 'cpu'):
     model = YOLO("yolov8x.pt")
     try:
         results = model.track(
@@ -24,7 +25,8 @@ def run_tracking(video_path,
             project=project_name,
             name=name,
             show=show,
-            verbose=verbose
+            verbose=verbose,
+            device=device
         )
 
         for frame_idx, r in enumerate(results):
