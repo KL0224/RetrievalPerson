@@ -10,8 +10,9 @@ class TrackletFrame:
 
 
 class Tracklet:
-    def __init__(self, global_id, camera_id):
+    def __init__(self, global_id, sequence_id, camera_id):
         self.global_id = global_id
+        self.sequence_id = sequence_id
         self.camera_id = camera_id
         self.frames = []
         self.reid_embeddings = []
@@ -27,9 +28,9 @@ class TrackletManager:
     def __init__(self):
         self.tracklets = {}
 
-    def get(self, global_id, camera_id):
+    def get(self, global_id, sequence_id, camera_id):
         if global_id not in self.tracklets:
-            self.tracklets[global_id] = Tracklet(global_id, camera_id)
+            self.tracklets[global_id] = Tracklet(global_id, sequence_id, camera_id)
         return self.tracklets[global_id]
 
     def all(self):
