@@ -9,7 +9,7 @@ def run_tracking(video_path,
                  name: str = None,
                  show: bool = False,
                  verbose: bool = False):
-    model = YOLO("yolov8n.pt")
+    model = YOLO("yolov8x.pt")
     try:
         results = model.track(
             source=video_path,
