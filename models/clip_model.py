@@ -12,6 +12,7 @@ class CLIPModel:
         )
         self.model.eval()
         self.tokenizer = open_clip.get_tokenizer("ViT-H-14-quickgelu")
+        self.device = device
 
     def encode_image(self, image):
         img = self.preprocess(Image.fromarray(image)).unsqueeze(0)
