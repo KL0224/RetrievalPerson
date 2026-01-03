@@ -6,7 +6,7 @@ class TrackletFrame:
     frame_id: int
     bbox: np.ndarray
     confidence: float
-    image: np.ndarray
+    crop_path: str
 
 
 class Tracklet:
