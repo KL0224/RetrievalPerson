@@ -1,4 +1,4 @@
-def sample_best_per_window(frames, window=10):
+def sample_best_per_window(frames, window=30):
     sampled = []
     for i in range(0, len(frames), window):
         chunk = frames[i:i+window]
