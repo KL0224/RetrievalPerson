@@ -4,7 +4,7 @@ from torchvision import transforms
 from PIL import Image
 
 class ReIDModel:
-    def __init__(self, device='cpu'):
+    def __init__(self, device='cpu', model_path=None):
         '''
         Docstring for __init__
         Defautl device is CPU
@@ -14,7 +14,7 @@ class ReIDModel:
         self.model = torchreid.utils.feature_extractor.FeatureExtractor(
             model_name="osnet_x1_0",
             device=device,
-            model_path='osnet_x1_0_market_256x128_amsgrad_ep150_stp60_lr0.0015_b64_fb10_softmax_labelsmooth_flip.pth'
+            model_path=model_path
         )
         # self.model = torchreid.models.build_model(
         #     name="osnet_x1_0",
