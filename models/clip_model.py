@@ -15,11 +15,13 @@ class CLIPModel:
 
     def encode_image(self, image):
         img = self.preprocess(Image.fromarray(image)).unsqueeze(0)
+        img = img.to(self.device)
         with torch.no_grad():
             return self.model.encode_image(img).cpu().numpy()[0]
     
     def encode_text(self, text):
         tokens = self.tokenizer([text])
+        tokens = tokens.to(self.device)
         with torch.no_grad():
             return self.model.encode_text(tokens).cpu().numpy()[0]
 
