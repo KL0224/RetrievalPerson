@@ -60,7 +60,7 @@ def run_tracking(video_path,
                 crops.append(crop)
                 bbs.append( ([left, top, w, h], conf, '0') )
             
-            embeds = embedder(crops) # your own embedder to take in the cropped object chips, and output feature vectors
+            embeds = embedder(crops).cpu().numpy() # your own embedder to take in the cropped object chips, and output feature vectors
             tracks = tracker.update_tracks(bbs, embeds)
             ids = []
             confs = []
