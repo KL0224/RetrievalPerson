@@ -4,7 +4,7 @@ import numpy as np
 @dataclass
 class TrackletFrame:
     frame_id: int
-    bbox: np.ndarray
+    bbox: np.ndarray # [left, top, right, bottom]
     confidence: float
     crop_path: str
 
