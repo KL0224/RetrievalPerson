@@ -23,7 +23,7 @@ def run_tracking(video_path,
         device= device,
     )
 
-    tracker = DeepSort(max_age=30) # must define tracker here
+    tracker = DeepSort(max_age=30, ) # must define tracker here
     
     try:
         # Detecting
