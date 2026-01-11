@@ -2,6 +2,7 @@ import torch
 import torchreid
 from torchvision import transforms
 from PIL import Image
+import torch.nn.functional as F
 
 class ReIDModel:
     def __init__(self, device='cpu', model_path=None):
@@ -35,10 +36,9 @@ class ReIDModel:
         '''
         Docstring for extract
         :param images: can be a list of images in numpy array format, list of paths, list of tensors
-        :return: numpy array of extracted features
+        :return: NORMALIZED numpy array of extracted features
         '''
         feats = self.model(images)
+        feats = F.normalize(feats, dim=-1)
         return feats.cpu().numpy()
-        # return self.feature_extractor(images)
-        #     feats = self.model(imgs)
-        # return feats.cpu().numpy()
+        

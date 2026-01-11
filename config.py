@@ -33,7 +33,7 @@ SEQ_ID_OFFSET = 1_000_000
 CAMERA_ID_OFFSET = 100_000
 
 #models
-REID_MODEL_NAME = "osnet_x1_0"
+REID_MODEL_NAME = "osnet_ain_x1_0"
 REID_EMB_SIZE = 512
 
 CLIP_MODEL_NAME = "ViT-H-14-378-quickgelu"

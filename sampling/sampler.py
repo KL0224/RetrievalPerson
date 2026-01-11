@@ -20,17 +20,3 @@ def sample_best_per_window(tracklet_frames, window=30, ratio_to_largest_area=0.5
     return sampled[:number_to_aggregate]
 
 
-
-# 1s -> 1 frame
-# 10s -> 10 frames
-
-# 3 3 3 1
-
-
-# def group_seconds(frames, seconds=3):
-#     step = seconds
-#     return [
-#         frames[i:i+step]
-#         for i in range(0, len(frames), step)
-#     ]
-
