@@ -9,5 +9,8 @@ stage0*
 .venv
 __pycache__
 deep_person_reid
+<<<<<<< HEAD
 track-embed_2.ipynb
+=======
+>>>>>>> refs/remotes/origin/new_branch
 .gitignore

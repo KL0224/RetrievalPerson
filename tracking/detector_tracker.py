@@ -23,7 +23,7 @@ def run_tracking(video_path,
         device= device,
     )
 
-    tracker = DeepSort(max_age=30, ) # must define tracker here
+    tracker = DeepSort(max_age=90) # must define tracker here
     
     try:
         # Detecting
@@ -44,8 +44,9 @@ def run_tracking(video_path,
 
         # Tracking
         for frame_idx, r in enumerate(results):
-            if r.boxes is None:
+            if r.boxes is None or len(r.boxes) == 0:
                 continue
+
             frame = r.orig_img # HxWxC, numpy array
             bbs = [] # List[ Tuple( List[float or int], float, str ) ] ( [left,top,w,h] , confidence, detection_class)
             boxes_xyxy = r.boxes.xyxy.cpu().numpy()
@@ -54,12 +55,24 @@ def run_tracking(video_path,
             crops = []
             for box, conf in zip(boxes_xyxy, confs):
                 left, top, right, bottom = map(int, box)
+
+                if right <= left or bottom <= top:
+                    continue
+
                 w = right - left
                 h = bottom - top
                 crop = frame[top:bottom, left:right]
+
+                if crop.size == 0:
+                    continue
+
                 crops.append(crop)
                 bbs.append( ([left, top, w, h], conf, '0') )
             
+            if len(crops) == 0:
+                print(f"Empty crops at frame {frame_idx}, boxes: {len(boxes_xyxy)}")
+                continue
+
             embeds = embedder(crops).cpu().numpy() # your own embedder to take in the cropped object chips, and output feature vectors
             tracks = tracker.update_tracks(bbs, embeds)
             ids = []

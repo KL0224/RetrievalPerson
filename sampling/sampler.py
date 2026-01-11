@@ -19,4 +19,3 @@ def sample_best_per_window(tracklet_frames, window=30, ratio_to_largest_area=0.5
     filtered.sort(key=lambda f: f.confidence, reverse=True)
     return sampled[:number_to_aggregate]
 
-
