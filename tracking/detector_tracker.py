@@ -97,7 +97,7 @@ def run_tracking(video_path,
                 confs.append(conf)
                 ltrb_boxes.append(ltrb)
                 # ltwh_boxes.append(ltwh)
-            print(ltrb_boxes)
+            
             boxes_xyxy = np.array(ltrb_boxes)
             # boxes_xywh = np.array(ltwh_boxes)
             ids = np.array(ids)
