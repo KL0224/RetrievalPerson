@@ -19,7 +19,7 @@ class CLIPModel:
         self.tokenizer = open_clip.get_tokenizer("ViT-H-14-quickgelu")
         self.device = device
 
-    def preprocess_frame(frame, preprocess):
+    def preprocess_frame(self, frame, preprocess):
         pil_image = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
         return preprocess(pil_image).unsqueeze(0)  # (1, C, H, W)
 
@@ -31,7 +31,7 @@ class CLIPModel:
             return self.model.encode_image(img).cpu().numpy()[0]
     
     @torch.no_grad()
-    def encode_batch(frames: List) -> np.ndarray:
+    def encode_batch(self, frames: List) -> np.ndarray:
         '''
         Docstring for encode_batch
         
