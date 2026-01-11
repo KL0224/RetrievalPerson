@@ -1,12 +1,5 @@
 .idea
 data
 tools
-test*
-videos*
-output*
-cut_video.py
-yolov8n.pt
-stage0*
-.venv
 __pycache__
-.gitignore
+temp.py

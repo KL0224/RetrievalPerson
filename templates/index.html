@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SmartTrace Analyst | Intelligent Re-ID</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
+    <link
+      rel="icon"
+      href="{{ url_for('static', filename='assets/SmartTraceRetrieval.png') }}"
+      type="image/png"
+    />
+    <style>
+      /* Thêm style CSS Grid cho kết quả hiển thị */
+      .results-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 20px;
+        padding: 20px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="app-header">
+      <div class="header-wrapper">
+        <div class="header-logo">
+          <div class="logo-icon">
+             <img src="{{ url_for('static', filename='assets/SmartTraceRetrieval.png') }}" alt="Logo" />
+          </div>
+          <div class="logo-text">
+            <h1>SmartTrace</h1>
+            <p class="logo-subtitle">Intelligent Pursuit • Instant Results</p>
+          </div>
+        </div>
+        <div class="header-status">
+          <span class="status-dot"></span> System Operational
+        </div>
+      </div>
+    </header>
+
+    <div class="dashboard-container">
+      <aside class="sidebar">
+        <h3 class="sidebar-heading">Query Parameters</h3>
+        <p class="sidebar-instruction">
+          Enter semantic descriptors or upload a visual reference.
+        </p>
+
+        <div class="sidebar-panel">
+          <h3 class="panel-title">1. Semantic Analysis</h3>
+          <div class="form-field floating-label-group">
+            <textarea id="textQuery" class="text-input" placeholder=" "></textarea>
+            <label for="textQuery" class="floating-label">E.g., Male, blue jacket...</label>
+          </div>
+        </div>
+
+        <div class="sidebar-panel">
+          <h3 class="panel-title">2. Visual Reference</h3>
+          <div class="form-field">
+            <input type="file" accept="image/*" id="fileUpload" style="display: none" />
+            <div id="uploadZone" class="upload-area">
+              <p class="upload-text">Click to Upload Image</p>
+            </div>
+            <div id="previewContainer" class="preview-container" style="display: none">
+              <img id="previewImage" class="preview-img" alt="Preview" />
+              <button id="removeImageBtn" class="btn btn-secondary btn-full">Remove Entry</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="action-block">
+          <button id="searchBtn" class="btn btn-primary btn-full" disabled>Run Query</button>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <div id="loadingBadge" class="loading-badge" style="display: none">
+          <div class="spinner-dark"></div>
+          <span class="loading-label">Analyzing Database...</span>
+        </div>
+
+        <div id="emptyState" class="empty-state">
+          <h2 class="empty-title">Ready for Identification</h2>
+          <p class="empty-desc">Enter parameters to begin.</p>
+        </div>
+
+        <div id="resultsPanel" class="results-panel" style="display: none">
+          <div class="results-header">
+            <h2 class="results-title">Search Results</h2>
+            <div id="resultsCount" class="match-count-badge">Found 00 Matches</div>
+          </div>
+          <div id="resultsGrid" class="results-grid">
+              </div>
+        </div>
+      </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+  </body>
+</html>
