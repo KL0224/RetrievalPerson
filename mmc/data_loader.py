@@ -1,6 +1,9 @@
+import json
+import pickle
 import re
 import ast
-from mot.config import config
+import os
+from .config import config
 
 def load_metadata_file(file_path):
     # Giả sử mỗi dòng có định dạng: seq_id cam_id frame_id object_id x y w h
@@ -9,7 +12,7 @@ def load_metadata_file(file_path):
         for line in f:
             parts = line.strip().split(' ')
             if len(parts) < 8: continue
-            seq_id, cam_id, frame_id, object_id = parts[0], int(parts[1]), int(parts[2]), int(parts[3])
+            seq_id, cam_id, frame_id, object_id = int(parts[0]), int(parts[1]), int(parts[2]), int(parts[3])
             bbox = list(map(float, parts[4:8]))
             key = (seq_id, cam_id, object_id)
             if key not in metadata:
@@ -45,12 +48,39 @@ def load_features_file(file_path):
             }
     return features
 
+def load_features_pkl(file_path):
+    features = {}
+    with open(file_path, 'rb') as f:
+        data = pickle.load(f)
+
+    for key, values in data.items():
+        features[key] = {
+            "vector_reid": values['reid'],
+            "vector_clip": values['clip']
+        }
+    return features
+
+
 def load_all_data(cam_files):
     # Dịnh dạng: (meta_file_path, feature_file_path)
     all_metadatas = {}
     all_features = {}
     for meta_file, features_file in cam_files:
         all_metadatas.update(load_metadata_file(meta_file))
-        all_features.update(load_features_file(features_file))
+        all_features.update(load_features_pkl(features_file))
     return all_metadatas, all_features
+
+def load_all_cam(cam_files="data/metadata/metadata_features_files.json"):
+    if not os.path.exists(cam_files):
+        print(f"Cam file {cam_files} not found.")
+
+    with open(cam_files, 'r') as f:
+        data = json.load(f)
+
+    filepaths = [tuple(x) for x in data['cam_files']]
+    return filepaths
+
+
+
+
 

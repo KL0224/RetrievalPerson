@@ -1,7 +1,7 @@
 import numpy as np
 import networkx as nx
 from sklearn.cluster import AgglomerativeClustering
-from config import config
+from .config import config
 
 def compute_weighted_similarity(feat1, feat2, w_reid=0.7, w_clip=0.3):
     """
@@ -19,7 +19,6 @@ def compute_weighted_similarity(feat1, feat2, w_reid=0.7, w_clip=0.3):
 
     # Tổng hợp trọng số (ReID thường đáng tin cậy hơn về định danh cụ thể)
     return (w_reid * sim_reid) + (w_clip * sim_clip)
-
 
 def is_temporal_valid(meta1, meta2, cam1, cam2, seq1, seq2):
     """
@@ -84,9 +83,18 @@ def build_graph(objects, features, metadata):
 
         for j in range(i + 1, len(obj_keys)):
             seq2, cam2, obj2 = obj_keys[j]
+            print(seq1, cam1, obj1, seq2, cam2, obj2)
 
             # Bỏ qua nếu cùng một camera
-            if seq1 == seq2 and cam1 == cam2: continue
+            if seq1 == seq2 and cam1 == cam2:
+                # t1_start = min(d['frame_id'] for d in metadata[(seq1, cam1, obj1)])
+                # t1_end = max(d['frame_id'] for d in metadata[(seq1, cam1, obj1)])
+                # t2_start = min(d['frame_id'] for d in metadata[(seq1, cam2, obj2)])
+                # t2_end = max(d['frame_id'] for d in metadata[(seq1, cam2, obj2)])
+                #
+                # if not (t2_start > t1_end or t1_start > t2_end):
+                #     continue
+                continue
 
             # SPATIAL FILTER (Lọc không gian)
             neighbors = config.spatial_neighbors.get(f"C{cam1}", [])
@@ -94,14 +102,14 @@ def build_graph(objects, features, metadata):
                 continue
 
             # TEMPORAL FILTER (Lọc thời gian)
-            if not is_temporal_valid(metadata[(seq1, cam1, obj1)], metadata[(seq1, cam2, obj2)], cam1, cam2, seq1, seq2):
+            if not is_temporal_valid(metadata[(seq1, cam1, obj1)], metadata[(seq2, cam2, obj2)], cam1, cam2, seq1, seq2):
                 continue
 
             # SIMILARITY
             sim = compute_weighted_similarity(features[(seq1, cam1, obj1)], features[(seq2, cam2, obj2)])
 
             if sim > config.similarity_threshold:
-                G.add_edge((cam1, obj1), (cam2, obj2), weight=sim)
+                G.add_edge((seq1, cam1, obj1), (seq2, cam2, obj2), weight=sim)
 
     return G
 

@@ -1,5 +1,11 @@
 .idea
-data
 tools
 __pycache__
 temp.py
+data/id_objects
+data/crops.zip
+data/global_id_v0.txt
+data/global_id_v1.txt
+data/preds
+data/person
+logs
