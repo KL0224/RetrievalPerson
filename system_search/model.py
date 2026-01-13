@@ -39,7 +39,7 @@ class ReIDModel:
 
     def extract(self, images):
         with torch.no_grad():
-            feats = self.model(images.to(self.device))
+            feats = self.model(images)
             feats = F.normalize(feats, dim=-1)
         return feats.cpu().numpy()
 

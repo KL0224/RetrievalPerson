@@ -24,6 +24,19 @@ function initIndexPage() {
 
     let selectedFile = null;
 
+    // --- YÊU CẦU 1: KHÔI PHỤC KẾT QUẢ CŨ NẾU CÓ ---
+    const cachedResults = sessionStorage.getItem("lastSearchResults");
+    if (cachedResults) {
+        try {
+            const results = JSON.parse(cachedResults);
+            if (results && results.length > 0) {
+                renderResults(results);
+            }
+        } catch (e) {
+            console.error("Cache error", e);
+        }
+    }
+
     // Handle File Selection
     uploadZone.addEventListener("click", () => fileUpload.click());
     fileUpload.addEventListener("change", (e) => {
@@ -67,6 +80,9 @@ function initIndexPage() {
             formData.append("file", selectedFile);
         }
 
+        // Xóa cache cũ khi search mới
+        sessionStorage.removeItem("lastSearchResults");
+
         // UI State: Loading
         loadingBadge.style.display = "flex";
         emptyState.style.display = "none";
@@ -83,6 +99,10 @@ function initIndexPage() {
             if (!response.ok) throw new Error("Search failed");
 
             const results = await response.json();
+
+            // Lưu cache mới
+            sessionStorage.setItem("lastSearchResults", JSON.stringify(results));
+
             renderResults(results);
 
         } catch (error) {
@@ -105,14 +125,13 @@ function initIndexPage() {
             return;
         }
 
+        emptyState.style.display = "none"; // Ẩn empty state
         resultsPanel.style.display = "block";
 
         results.forEach((item) => {
             const card = document.createElement("div");
-            card.className = "result-card"; // Cần thêm CSS cho class này nếu chưa có
+            card.className = "result-card";
 
-            // Xử lý ảnh thumbnail
-            // Giả sử server trả về đường dẫn tương đối
             const imgSrc = item.thum_url || "";
             const scorePct = (item.score * 100).toFixed(1) + "%";
 
@@ -127,13 +146,12 @@ function initIndexPage() {
                 </div>
             `;
 
-            // Click vào kết quả để sang trang chi tiết
             card.addEventListener("click", () => {
                 localStorage.setItem("selectedTrack", JSON.stringify(item));
                 window.location.href = "/details";
             });
 
-            // Thêm CSS inline nhỏ cho card kết quả (hoặc thêm vào style.css)
+            // Inline styles giữ nguyên hoặc chuyển vào CSS
             card.style.cssText = "background: #1e1e1e; border-radius: 8px; overflow: hidden; cursor: pointer; transition: transform 0.2s;";
             const imgWrap = card.querySelector('.card-img-wrapper');
             imgWrap.style.cssText = "height: 200px; width: 100%; position: relative;";
@@ -158,21 +176,23 @@ function initDetailPage() {
     }
 
     const track = JSON.parse(trackStr);
+    const allTracks = track.tracks || [];
 
     // 1. Fill Basic Info
     setText("headerId", track.global_id || "Unknown");
     setText("displayId", track.global_id || "Unknown");
     setText("targetConf", (track.score * 100).toFixed(1) + "%");
-    setText("nodeCount", String(track.tracks ? track.tracks.length : 0).padStart(2, "0"));
+    setText("nodeCount", String(allTracks.length).padStart(2, "0"));
 
     const imgEl = document.getElementById("targetImg");
     if (imgEl) imgEl.src = track.thum_url || "";
 
-    // 2. Build Timeline & Grid
-    // Lấy danh sách camera unique và sort
-    const uniqueCams = [...new Set(track.cameras)].sort();
-    buildTimeline(uniqueCams, track);
-    buildGrid(track.tracks || [], track);
+    // 2. YÊU CẦU 3: Bảng Thống Kê & Bộ lọc
+    buildStatisticsTable(allTracks);
+    initFilterControls(allTracks, track);
+
+    // Mặc định hiển thị tất cả ban đầu
+    buildGrid(allTracks, track);
 
     // 3. Modal Close Logic
     const closeBtn = document.getElementById("closeModal");
@@ -186,56 +206,129 @@ function initDetailPage() {
     }
 }
 
-// Helpers cho Detail Page
+// Helper: Build Statistics Table Sidebar
+function buildStatisticsTable(tracks) {
+    const tableBody = document.getElementById("statsTableBody");
+    if (!tableBody) return;
+    tableBody.innerHTML = "";
+
+    // Group by Seq -> List of Cams
+    const stats = {};
+    tracks.forEach(t => {
+        const s = t.seq_id;
+        const c = t.cam_id;
+        if (!stats[s]) stats[s] = new Set();
+        stats[s].add(c);
+    });
+
+    // Render row
+    Object.keys(stats).sort().forEach(seq => {
+        const cams = Array.from(stats[seq]).sort((a, b) => a - b).join(", ");
+        const row = document.createElement("tr");
+        row.innerHTML = `
+            <td style="padding: 8px; border-bottom: 1px solid #eee;">Seq ${seq}</td>
+            <td style="padding: 8px; border-bottom: 1px solid #eee;">Cam ${cams}</td>
+        `;
+        tableBody.appendChild(row);
+    });
+}
+
+// Helper: Init Filter Controls (Seq & Cam Selectors)
+function initFilterControls(allTracks, rootTrack) {
+    const seqSelect = document.getElementById("seqSelect");
+    const camSelect = document.getElementById("camSelect");
+
+    if(!seqSelect || !camSelect) return;
+
+    const uniqueSeqs = [...new Set(allTracks.map(t => t.seq_id))].sort();
+
+    seqSelect.innerHTML = '<option value="all">All Sequences</option>';
+    uniqueSeqs.forEach(s => {
+        const opt = document.createElement("option");
+        opt.value = s;
+        opt.textContent = `Sequence ${s}`;
+        seqSelect.appendChild(opt);
+    });
+
+    function updateCamOptions() {
+        const currentSeq = seqSelect.value;
+        camSelect.innerHTML = '<option value="all">All Cameras</option>';
+        camSelect.disabled = (currentSeq === "all");
+
+        if (currentSeq !== "all") {
+            const camsInSeq = allTracks
+                .filter(t => String(t.seq_id) === String(currentSeq))
+                .map(t => t.cam_id);
+            const uniqueCams = [...new Set(camsInSeq)].sort((a,b)=>a-b);
+
+            uniqueCams.forEach(c => {
+                const opt = document.createElement("option");
+                opt.value = c;
+                opt.textContent = `Camera ${c}`;
+                camSelect.appendChild(opt);
+            });
+        }
+    }
+
+    seqSelect.addEventListener("change", () => {
+        updateCamOptions();
+        applyFilters();
+    });
+
+    camSelect.addEventListener("change", () => {
+        applyFilters();
+    });
+
+    function applyFilters() {
+        const sVal = seqSelect.value;
+        const cVal = camSelect.value;
+
+        let filtered = allTracks;
+
+        if (sVal !== "all") {
+            filtered = filtered.filter(t => String(t.seq_id) === String(sVal));
+        }
+        if (cVal !== "all") {
+            filtered = filtered.filter(t => String(t.cam_id) === String(cVal));
+        }
+
+        // Đảm bảo rootTrack luôn có tracks ban đầu
+        buildGrid(filtered, rootTrack);
+    }
+}
+
+
 function setText(id, val) {
     const el = document.getElementById(id);
     if (el) el.textContent = val;
 }
 
-function buildTimeline(camIds, rootTrack) {
-    const timeline = document.getElementById("interactiveTimeline");
-    if (!timeline) return;
-    timeline.innerHTML = "";
-
-    camIds.forEach((camId, idx) => {
-        // Vị trí dot trên timeline
-        const leftPct = camIds.length === 1 ? 50 : (idx / (camIds.length - 1)) * 100;
-
-        const dot = document.createElement("div");
-        dot.className = "timeline-dot";
-        dot.style.left = `${leftPct}%`;
-        dot.title = `CAM ${camId}`;
-
-        // Tìm track tốt nhất cho cam này để play
-        dot.onclick = () => {
-            const bestTrack = rootTrack.tracks.find(t => String(t.cam_id) === String(camId));
-            if (bestTrack) openVideoForTrack(rootTrack, bestTrack);
-        };
-
-        timeline.appendChild(dot);
-    });
-}
-
+// YÊU CẦU 2 & 3: Grid hiển thị video
 function buildGrid(tracks, rootTrack) {
     const grid = document.getElementById("cctvGrid");
     if (!grid) return;
     grid.innerHTML = "";
 
-    tracks.forEach((t, idx) => {
+    if (tracks.length === 0) {
+        grid.innerHTML = `<p style="color:#666; grid-column: 1/-1; text-align:center;">No videos match the selected filters.</p>`;
+        return;
+    }
+
+    tracks.forEach((t) => {
         const card = document.createElement("div");
         card.className = "cctv-card";
 
-        // Tạo thẻ card động
+        // Fix layout: play button center (xử lý ở CSS .play-overlay)
         card.innerHTML = `
-            <div style="padding:8px; display:flex; justify-content:space-between; color:white; font-size:11px;">
+            <div class="cctv-header">
                 <strong>CAM-${t.cam_id}</strong>
-                <span style="color:#ef4444">● REC</span>
+                <span class="rec-dot">● REC</span>
             </div>
-            <div style="width:100%; aspect-ratio:16/9; background:#000; display:flex; align-items:center; justify-content:center;">
-                <img src="${rootTrack.thum_url}" style="width:100%; height:100%; object-fit:cover; opacity:0.6;">
-                <div style="position:absolute; color:white; font-size:24px;">▶</div>
+            <div class="video-thumb-container">
+                <img src="${rootTrack.thum_url}" class="thumb-bg">
+                <div class="play-overlay">▶</div>
             </div>
-            <div style="padding:10px; color:#9ca3af; font-size:11px;">
+            <div class="cctv-footer">
                 SEQ-${t.seq_id} | OBJ-${t.obj_id}
             </div>
         `;
@@ -258,7 +351,6 @@ async function openVideoForTrack(rootTrack, t) {
     if (title) title.textContent = "LOADING EVIDENCE...";
     modal.style.display = "flex";
 
-    // Prepare Payload khớp với app.py
     const payload = {
         global_id: rootTrack.global_id,
         seq_id: t.seq_id,

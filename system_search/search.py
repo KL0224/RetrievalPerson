@@ -26,14 +26,16 @@ class SystemSearch:
         logger.info("Initialized QdrantClient")
         self.collection_name = "person_retrieval"
 
+    # system_search/search.py
     def parse_qdrant_outputs(self, objects):
         results = {}
-        for group in objects.groups:
-            global_id = group["id"]
-            hit = group["hits"][0]
-            score = hit["score"]
 
-            payload = hit.get("payload", {})
+        for group in objects.groups:
+            global_id = group.id
+            hit = group.hits[0]
+            score = hit.score
+
+            payload = hit.payload or {}
             cam_id = payload["cam_id"]
             seq_id = payload["seq_id"]
             obj_id = payload["obj_id"]
@@ -74,7 +76,7 @@ class SystemSearch:
                 "cam_id": payload["cam_id"],
                 "obj_id": payload["obj_id"],
                 "detections": payload["detections"],
-                "related_cam": payload["related_cam"],
+                "related_cams": payload["related_cams"],
                 "frame_start": payload["frame_start"],
                 "frame_end": payload["frame_end"],
             })
@@ -97,14 +99,14 @@ class SystemSearch:
             elif image_path and text_query is None:  # Trường hợp chỉ có image
                 img = Image.open(image_path).convert('RGB')
                 img_np = np.array(img)
-                emb_img_reid = self.reidmodel.extract(img_np)
-                emb_img_clip = self.clipmodel.encode_image(emb_img_reid)
+                emb_img_reid = self.reidmodel.extract(img_np)[0]
+                emb_img_clip = self.clipmodel.encode_image(img_np)
                 objects = self.search_image_only(emb_img_reid, emb_img_clip, max_results)
             else: # Có cả 2
                 emb_text = self.clipmodel.encode_text(text_query)
                 img = Image.open(image_path).convert('RGB')
                 img_np = np.array(img)
-                emb_img_reid = self.reidmodel.extract(img_np)
+                emb_img_reid = self.reidmodel.extract(img_np)[0]
                 objects =  self.search_hybrid(emb_img_reid, emb_text, max_results)
 
             object_dict =  self.parse_qdrant_outputs(objects)

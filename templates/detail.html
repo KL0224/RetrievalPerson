@@ -54,15 +54,42 @@
           <div class="summary-value" id="nodeCount">00</div>
           <span class="info-label">Nodes Detected</span>
         </div>
+
+        <div class="stats-table-container" style="margin-top: 20px;">
+             <h4 class="section-title" style="margin-bottom: 10px; font-size: 0.8rem;">APPEARANCE HISTORY</h4>
+             <table class="stats-table" style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+                 <thead>
+                     <tr style="background: #f1f5f9; text-align: left;">
+                         <th style="padding: 8px; border-bottom: 2px solid #e2e8f0;">Sequence</th>
+                         <th style="padding: 8px; border-bottom: 2px solid #e2e8f0;">Cameras</th>
+                     </tr>
+                 </thead>
+                 <tbody id="statsTableBody">
+                     </tbody>
+             </table>
+        </div>
       </aside>
 
       <main class="detail-scrollable">
+
         <section class="forensic-section">
-          <h3 class="section-title">CHRONOLOGICAL TRAJECTORY</h3>
-          <div class="timeline-bar">
-            <div class="timeline-track"></div>
-            <div id="interactiveTimeline">
-                </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+              <h3 class="section-title" style="margin: 0;">SURVEILLANCE FILTER</h3>
+          </div>
+
+          <div class="filter-bar">
+            <div class="filter-group">
+                <label>Select Sequence:</label>
+                <select id="seqSelect" class="filter-select">
+                    <option value="all">All Sequences</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Select Camera:</label>
+                <select id="camSelect" class="filter-select" disabled>
+                    <option value="all">All Cameras</option>
+                </select>
+            </div>
           </div>
         </section>
 

@@ -61,7 +61,6 @@ def build_clustering_input_weighted(
 
     return reid_embeddings, clip_embeddings, intervals, tracklet_keys
 
-# --------------------------
 def time_compatible(t1, t2):
     t1_start, t1_end = t1
     t2_start, t2_end = t2
@@ -264,13 +263,13 @@ def run_matching(
     )
 
     # Save results
-    save_results(clusters, output_path)
+    # save_results(clusters, output_path)
 
     print(f"Found {len(clusters)} unique objects")
     print(f"Results saved to {output_path}")
 
-    # Organize images by cluster
-    organize_images_by_cluster(clusters, crops_dir, output_dir)
+    # # Organize images by cluster
+    # organize_images_by_cluster(clusters, crops_dir, output_dir)
 
     return clusters
 
@@ -283,4 +282,5 @@ if __name__ == "__main__":
         tau=0.875,
         w_reid=0.7
     )
+    print(clusters)
 
