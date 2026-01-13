@@ -4,6 +4,7 @@ import pickle
 from data_loader import load_all_data
 import json
 import os
+import glob
 
 def compute_tracklet_intervals(all_metadatas):
     """
@@ -233,9 +234,10 @@ def organize_images_by_cluster(clusters, crops_dir, output_dir):
 
 
 def run_matching(
-        crops_dir='data/crops/seq_000/camera_2',
+        crops_dir='data/crops',
+        feature_dir = 'data/new_feature_objects',
+        meatadata_dir = 'data/new_metadata_objects',
         output_dir='data/cluster',
-        output_path='matching_results.pkl',
         tau=0.875,
         w_reid=0.7
 ):
@@ -249,37 +251,89 @@ def run_matching(
         tau: similarity threshold
         w_reid: weight for ReID features
     """
-    # Load data
-    all_metadatas, all_features = load_all_data([
-        ("data/new_metadata_objects/seq_000/seq_000_camera_2.txt",
-         "data/new_feature_objects/seq_000/seq_000_camera_2.pkl")
-    ])
+    os.makedirs(output_dir, exist_ok=True)
 
-    # Perform matching
-    clusters = match_tracklets_weighted(
-        all_metadatas,
-        all_features,
-        tau=tau,
-        w_reid=w_reid
-    )
+    seqs = glob.glob(os.path.join(meatadata_dir, 'seq_*/'))
+    print(seqs)
+    seqs_name = sorted([os.path.basename(os.path.normpath(s)) for s in seqs])
 
-    # Save results
-    save_results(clusters, output_path)
+    print(seqs_name)
+    cameras = ['camera_1', 'camera_2', 'camera_3', 'camera_4', 'camera_5', 'camera_6', 'camera_7']
+    for seq in seqs_name:
+        print(f"Processing {seq}...")
+        for cam in cameras:
+            print(f"Processing {cam}...")
+            # Load data
+            metadata_path = os.path.join(meatadata_dir, seq, f"{seq}_{cam}.txt")
+            feature_path = os.path.join(feature_dir, seq, f"{seq}_{cam}.pkl")
 
-    print(f"Found {len(clusters)} unique objects")
-    print(f"Results saved to {output_path}")
+            #check files exist
+            if not os.path.exists(metadata_path):
+                print(f"Metadata file not found: {metadata_path}")
+                continue
+            if not os.path.exists(feature_path):
+                print(f"Feature file not found: {feature_path}")
+                continue
 
-    # Organize images by cluster
-    organize_images_by_cluster(clusters, crops_dir, output_dir)
 
-    return clusters
+            all_metadatas, all_features = load_all_data([
+                (metadata_path,
+                 feature_path)
+            ])
+
+            # Perform matching
+            clusters = match_tracklets_weighted(
+                all_metadatas,
+                all_features,
+                tau=tau,
+                w_reid=w_reid
+            )
+
+            # Save results
+            output_path = os.path.join(output_dir, f"{seq}_{cam}_results.pkl")
+            save_results(clusters, output_path)
+
+            print(f"Found {len(clusters)} unique objects in {seq}")
+            print(f"Results saved to {output_path}")
+            # Organize images by cluster
+            crops_seq_dir = os.path.join(crops_dir, seq, cam)
+            output_seq_dir = os.path.join(output_dir, seq, cam)
+            organize_images_by_cluster(clusters, crops_seq_dir, output_seq_dir)
+
+
+# -------------------------------------------------------------------
+    # # Load data
+    # all_metadatas, all_features = load_all_data([
+    #     ("data/new_metadata_objects/seq_000/seq_000_camera_2.txt",
+    #      "data/new_feature_objects/seq_000/seq_000_camera_2.pkl")
+    # ])
+
+    # # Perform matching
+    # clusters = match_tracklets_weighted(
+    #     all_metadatas,
+    #     all_features,
+    #     tau=tau,
+    #     w_reid=w_reid
+    # )
+
+    # # Save results
+    # save_results(clusters, output_path)
+
+    # print(f"Found {len(clusters)} unique objects")
+    # print(f"Results saved to {output_path}")
+
+    # # Organize images by cluster
+    # organize_images_by_cluster(clusters, crops_dir, output_dir)
+
+    # return clusters
 
 
 if __name__ == "__main__":
     clusters = run_matching(
-        crops_dir='data/crops/seq_000/camera_2',
-        output_dir='data/new_cluster/seq_000_camera_2',
-        output_path='single_cam_results_0_2.pkl',
+        crops_dir='data/crops',
+        output_dir='new_clusters',
+        feature_dir='data/new_feature_objects',
+        meatadata_dir='data/new_metadata_objects',
         tau=0.875,
         w_reid=0.7
     )
