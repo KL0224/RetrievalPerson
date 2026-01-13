@@ -2,11 +2,14 @@ from qdrant_client import QdrantClient
 from qdrant_client.http.models import Distance, VectorParams, PointStruct
 import uuid
 
-def upsert_to_qdrant(global_objects, host='localhost', port=6333):
+def upsert_to_qdrant(global_objects, host='localhost', port=6333, drop=False):
     client = QdrantClient(host=host, port=port)
     collection_name = "person_retrieval"
 
     # Tạo collection với named vectors
+    if drop and client.collection_exists(collection_name):
+        client.delete_collection(collection_name)
+
     if not client.collection_exists(collection_name):
         client.create_collection(
             collection_name=collection_name,
@@ -16,6 +19,8 @@ def upsert_to_qdrant(global_objects, host='localhost', port=6333):
             }
         )
         print(f"Đã tạo collection {collection_name}")
+
+
 
     points = []
     for global_id, data in global_objects.items():

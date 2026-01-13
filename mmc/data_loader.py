@@ -3,7 +3,7 @@ import pickle
 import re
 import ast
 import os
-from .config import config
+from config import config
 
 def load_metadata_file(file_path):
     # Giả sử mỗi dòng có định dạng: seq_id cam_id frame_id object_id x y w h
@@ -69,16 +69,6 @@ def load_all_data(cam_files):
         all_metadatas.update(load_metadata_file(meta_file))
         all_features.update(load_features_pkl(features_file))
     return all_metadatas, all_features
-
-def load_all_cam(cam_files="data/metadata/metadata_features_files.json"):
-    if not os.path.exists(cam_files):
-        print(f"Cam file {cam_files} not found.")
-
-    with open(cam_files, 'r') as f:
-        data = json.load(f)
-
-    filepaths = [tuple(x) for x in data['cam_files']]
-    return filepaths
 
 
 

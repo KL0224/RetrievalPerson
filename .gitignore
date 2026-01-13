@@ -9,3 +9,7 @@ data/global_id_v1.txt
 data/preds
 data/person
 logs
+temp_2.py
+temp_3.py
+single_image_ids.json
+single_cam_results_0_2.pkl

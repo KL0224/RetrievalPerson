@@ -1,5 +1,5 @@
 import torch
-from model import ReIDModel, CLIPModel
+from system_search.model import ReIDModel, CLIPModel
 from qdrant_client import QdrantClient
 from qdrant_client.http import models
 from logger import get_logger
@@ -28,7 +28,7 @@ class SystemSearch:
 
     def parse_qdrant_outputs(self, objects):
         results = {}
-        for group in objects["result"]["groups"]:
+        for group in objects.groups:
             global_id = group["id"]
             hit = group["hits"][0]
             score = hit["score"]
@@ -141,7 +141,7 @@ class SystemSearch:
     def search_text_only(self, vector_text, limit=10):
         return self.client.query_points_groups(
             collection_name=self.collection_name,
-            query_text=vector_text,
+            query=vector_text,
             using="vector_clip",
             group_by="global_id",
             group_size=1,

@@ -33,7 +33,7 @@ class ReIDModel:
         self.model = torchreid.utils.feature_extractor.FeatureExtractor(
             model_name="osnet_x1_0",
             device=device,
-            model_path='models/osnet_ain_x1_0_dukemtmcreid_256x128_amsgrad_ep90_lr0.0015_coslr_b64_fb10_softmax_labsmth_flip_jitter.pth' if model_path is None else model_path
+            model_path='models/osnet_x1_0_market_256x128_amsgrad_ep150_stp60_lr0.0015_b64_fb10_softmax_labelsmooth_flip.pth' if model_path is None else model_path
         )
         self.device = device
 

@@ -56,7 +56,7 @@ def export_mot(global_objects, output_path):
     buffer = defaultdict(list)
     for global_id ,global_object in global_objects.items():
         if "global" in global_id:
-            gid = int(global_id.split("_")[-1])
+            gid = int(global_id.split("_")[-1]) + 1
         else:
             gid = int(global_id.split("_")[-1]) * 1000
             if gid == 0:
@@ -102,7 +102,7 @@ def save_global_id_to_txt(global_objects, save_path):
 
             f.write("\n")
 
-def organize_crops_by_global_id(global_objects, crops_base_path="data/crops", output_base_path="data/id_objects"):
+def organize_crops_by_global_id(global_objects, crops_base_path="data/crops", output_base_path="data/id_objects_all"):
     """
     Tổ chức ảnh crops theo global_id.
     Mỗi global_id sẽ có 1 thư mục riêng chứa tất cả crops của các appearances.
@@ -160,12 +160,12 @@ if __name__ == '__main__':
     logger.info("Running matching...")
     global_objects = run_matching(camera_files)
     # Export global_id
-    save_global_id_to_txt(global_objects, "data/global_id_v1.txt")
+    save_global_id_to_txt(global_objects, "data/global_id_v2.txt")
     logger.info("Exporting MOT17 ...")
-    export_mot(global_objects, "data/preds")
+    export_mot(global_objects, "data/pred")
     # Tổ chức crops theo global_id
     logger.info("Organizing crops by global_id...")
-    organize_crops_by_global_id(global_objects)
-    # logger.info("Uploading QDrant ...")
-    # upsert_to_qdrant(global_objects)
-    # logger.info("Done.")
+    organize_crops_by_global_id(global_objects, crops_base_path="data/crops", output_base_path="data/id_objects_all")
+    logger.info("Uploading QDrant ...")
+    upsert_to_qdrant(global_objects, drop=True)
+    logger.info("Done.")

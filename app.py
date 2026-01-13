@@ -8,7 +8,6 @@ import subprocess
 
 # Init app and system
 app = Flask(__name__, template_folder='templates', static_folder='static')
-search_system = SystemSearch()
 USE_GPU = True
 
 
@@ -25,6 +24,15 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024 # 16MB cho ảnh
 
 # Utils
+system_search = None
+def get_search_system():
+    global system_search
+    if system_search is None:
+        system_search = SystemSearch()
+    return system_search
+
+system_search = get_search_system()
+
 def video_input_path(seq_id: str, cam_id: str) -> str:
     return os.path.join(VIDEO_FOLDER, str(seq_id), f'{cam_id}.avi')
 
@@ -121,7 +129,7 @@ def api_search():
         image_path = save_path
 
     try:
-        results = search_system.search(
+        results = system_search.search(
             image_path=image_path,
             text_query=text_query,
             max_results=10
@@ -292,4 +300,4 @@ def api_get_video():
     })
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=False)
