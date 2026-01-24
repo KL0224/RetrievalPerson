@@ -444,7 +444,7 @@ body {
   font-size: 0.9rem;
 }
 
-/* === RESULTS PANEL (NEW, used by resultsPanel/resultsGrid) === */
+/* === RESULTS PANEL === */
 .results-panel {
   max-width: 1150px;
   margin: 0 auto;
@@ -490,20 +490,27 @@ body {
   grid-template-rows: auto 1fr;
 }
 
+/* --- FIX LỖI 1: ẢNH BỊ CHE --- */
 .result-thumb {
   width: 100%;
-  aspect-ratio: 16 / 10;
-  background: #0b1220;
+  aspect-ratio: 3 / 4; /* Giữ tỷ lệ khung chân dung */
+  background: #0b1220; /* Màu nền tối để tôn ảnh */
   overflow: hidden;
   border-bottom: 1px solid #e2e8f0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px; /* Giảm padding để ảnh to hơn chút */
 }
 
 .result-thumb img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  /* Sửa lỗi: dùng contain để hiển thị toàn bộ ảnh, không bị cắt */
+  object-fit: contain;
+  object-position: center;
   display: block;
-  opacity: 0.95;
 }
 
 .result-body {

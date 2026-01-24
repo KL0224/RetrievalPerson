@@ -20,7 +20,7 @@ body {
   color: #0f172a;
 }
 
-/* ... Giữ nguyên phần Header, Sidebar style ... */
+/* === HEADER === */
 .app-header-slim {
   background: var(--primary);
   color: white;
@@ -48,22 +48,48 @@ body {
 }
 .logo-icon-small img { width: 100%; height: 100%; object-fit: contain; }
 
+/* === LAYOUT === */
 .detail-grid-layout {
   display: grid; grid-template-columns: 320px 1fr;
-  height: calc(100vh - 120px); overflow: hidden;
+  height: calc(100vh - 75px); /* Trừ đi chiều cao header */
+  overflow: hidden;
 }
 @media (max-width: 980px) { .detail-grid-layout { grid-template-columns: 1fr; height: auto; } }
 
-.sidebar-fixed { background: #fff; padding: 2rem; border-right: 1px solid var(--card-border); height: 100%; overflow-y: auto; }
+/* === SIDEBAR (LEFT) === */
+.sidebar-fixed {
+  background: #fff;
+  padding: 2rem;
+  border-right: 1px solid var(--card-border);
+  height: 100%;
+  overflow-y: auto;
+}
 
 .track-box { display: flex; flex-direction: column; gap: 10px; }
+
+/* --- FIX: KHUNG ẢNH ĐẠI DIỆN --- */
 .img-scale-wrapper-detail {
-  width: 100%; height: 350px; background: #0b1220; border-radius: 12px;
-  display: flex; align-items: center; justify-content: center; overflow: hidden;
-  margin-bottom: 6px; border: 1px solid rgba(255, 255, 255, 0.06);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+  width: 100%;
+  height: 300px;
+  background: #0b1220;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 1px solid rgba(0,0,0,0.1);
+  padding: 10px;
+  margin-bottom: 10px;
+  position: relative; /* Đảm bảo positioning đúng */
 }
-.track-img { max-width: 100%; max-height: 100%; object-fit: contain; }
+
+.track-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  border-radius: 8px; /* Làm mềm góc ảnh */
+}
 
 .confidence-bar {
   display: flex; justify-content: space-between; align-items: center;
@@ -88,19 +114,14 @@ body {
 }
 .summary-value { font-size: 2.5rem; font-weight: 900; color: var(--accent); line-height: 1; }
 
+/* === MAIN CONTENT (RIGHT) === */
 .detail-scrollable { padding: 2rem 3rem; overflow-y: auto; height: 100%; }
 @media (max-width: 980px) { .detail-scrollable { padding: 1.25rem; height: auto; } }
 
-.forensic-section { margin-bottom: 1.5rem; }
-.section-title {
-  font-size: 0.95rem; font-weight: 900; letter-spacing: 0.8px; color: #0f172a; margin-bottom: 0.75rem;
-}
-
-/* === YÊU CẦU 3: STYLES CHO FILTER BAR === */
 .filter-bar {
     display: flex; gap: 20px; background: white; padding: 15px;
     border-radius: 12px; border: 1px solid var(--card-border);
-    box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.02); margin-bottom: 1.5rem;
 }
 .filter-group { display: flex; flex-direction: column; gap: 5px; flex: 1; }
 .filter-group label { font-size: 0.8rem; font-weight: 700; color: #64748b; }
@@ -108,18 +129,25 @@ body {
     padding: 10px; border-radius: 6px; border: 1px solid #cbd5e1;
     font-size: 0.9rem; background-color: #f8fafc; color: #334155;
 }
-.filter-select:disabled { opacity: 0.5; cursor: not-allowed; }
 
-/* === YÊU CẦU 2: FIX VIDEO CARD ALIGNMENT === */
-.cctv-grid-pro { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
-@media (max-width: 1100px) { .cctv-grid-pro { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 620px) { .cctv-grid-pro { grid-template-columns: 1fr; } }
+.forensic-section { margin-bottom: 1.5rem; }
+.section-title {
+  font-size: 0.95rem; font-weight: 900; letter-spacing: 0.8px; color: #0f172a; margin-bottom: 0.75rem;
+}
+
+/* --- FIX: GRID VIDEO NHỎ GỌN (Giống Index) --- */
+.cctv-grid-pro {
+  display: grid;
+  /* Tự động chia cột, mỗi cột tối thiểu 220px -> Các ô sẽ nhỏ lại tương tự trang Index */
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 15px;
+}
 
 .cctv-card {
   background: #0b1220; border-radius: 12px; overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.08);
   transition: transform 0.15s ease, box-shadow 0.15s ease; cursor: pointer;
-  display: flex; flex-direction: column; /* Đảm bảo cấu trúc dọc */
+  display: flex; flex-direction: column;
 }
 .cctv-card:hover { transform: translateY(-2px); box-shadow: 0 18px 30px rgba(0, 0, 0, 0.18); }
 
@@ -129,54 +157,67 @@ body {
 }
 .rec-dot { color: #ef4444; }
 
-/* Container ảnh phải là relative để icon play absolute theo nó */
 .video-thumb-container {
-    position: relative;
-    width: 100%;
-    aspect-ratio: 16 / 9; /* Giữ khung hình cố định */
-    background: #000;
+  width: 100%;
+  aspect-ratio: 3 / 4; /* Giữ tỷ lệ khung chân dung */
+  background: #0b1220; /* Màu nền tối để tôn ảnh */
+  overflow: hidden;
+  border-bottom: 1px solid #e2e8f0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px; /* Giảm padding để ảnh to hơn chút */
+  position: relative;
 }
 
 .thumb-bg {
-    width: 100%; height: 100%; object-fit: cover; opacity: 0.6; display: block;
+  width: 100%;
+  height: 100%;
+  /* Sửa lỗi: dùng contain để hiển thị toàn bộ ảnh, không bị cắt */
+  object-fit: contain;
+  object-position: center;
+  display: block;
 }
 
-/* Căn giữa tuyệt đối icon play */
 .play-overlay {
-    position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    color: white; font-size: 32px;
-    z-index: 2; pointer-events: none;
-    text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 28px;
+  z-index: 2;
+  pointer-events: none;
+  text-shadow: 0 2px 5px rgba(0,0,0,0.5);
 }
 
 .cctv-footer {
-    padding: 10px; color: #9ca3af; font-size: 11px; background: rgba(0,0,0,0.2);
+    padding: 8px 10px; color: #9ca3af; font-size: 11px; background: rgba(0,0,0,0.2);
 }
 
-/* Modal & Footer (giữ nguyên) */
+/* === MODAL & FOOTER === */
 .modal-overlay {
   position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85);
   display: flex; align-items: center; justify-content: center; z-index: 2000; padding: 18px;
 }
 .modal-box {
   background: white; width: min(900px, 100%); border-radius: 16px; overflow: hidden;
-  position: relative; box-shadow: 0 30px 70px rgba(0, 0, 0, 0.35); border: 1px solid rgba(255, 255, 255, 0.12);
+  position: relative; box-shadow: 0 30px 70px rgba(0, 0, 0, 0.35);
 }
 .modal-header { padding: 14px 18px; border-bottom: 1px solid var(--card-border); background: #f8fafc; }
-.modal-header h2 { margin: 0; font-size: 0.95rem; font-weight: 900; letter-spacing: 0.7px; color: #0f172a; }
+.modal-header h2 { margin: 0; font-size: 0.95rem; font-weight: 900; color: #0f172a; }
 #modalVideoPlayer { width: 100%; display: block; background: #000; }
 .modal-close {
   position: absolute; top: 12px; right: 12px; background: rgba(0, 0, 0, 0.5); color: white;
   border: none; border-radius: 50%; width: 36px; height: 36px; cursor: pointer; z-index: 10;
 }
-.modal-close:hover { background: rgba(26, 188, 156, 0.75); }
+.modal-close:hover { background: var(--accent); }
 
 .app-footer {
   background: #1a252f; color: rgba(255, 255, 255, 0.5); padding: 1.5rem 3rem;
   border-top: 1px solid rgba(255, 255, 255, 0.1); margin-top: auto;
 }
-.footer-content { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
-.footer-logo { display: flex; align-items: center; gap: 10px; font-weight: 800; color: white; }
+.footer-content { display: flex; justify-content: space-between; align-items: center; }
+.footer-logo { font-weight: 800; color: white; }
 .footer-legal { font-size: 0.75rem; }

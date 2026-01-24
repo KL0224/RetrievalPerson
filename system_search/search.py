@@ -69,21 +69,27 @@ class SystemSearch:
         for point in points:
             payload = point.payload
             global_id = payload["global_id"]
+            seq_id = payload["seq_id"]
+            cam_id = payload["cam_id"]
+            obj_id = payload["obj_id"]
+
+            # Thêm thum_url riêng cho từng track
+            track_thum_url = f"static/crops/{seq_id}/{cam_id}/{obj_id}.jpg"
 
             objects_full_list[global_id].append({
                 "point_id": point.id,
-                "seq_id": payload["seq_id"],
-                "cam_id": payload["cam_id"],
-                "obj_id": payload["obj_id"],
+                "seq_id": seq_id,
+                "cam_id": cam_id,
+                "obj_id": obj_id,
                 "detections": payload["detections"],
-                "related_cams": payload["related_cams"],
                 "frame_start": payload["frame_start"],
                 "frame_end": payload["frame_end"],
+                "thum_url": track_thum_url,  # Ảnh riêng của track
             })
 
         return objects_full_list
 
-    def search(self, image_path=None, text_query=None, max_results=10):
+    def search(self, image_path=None, text_query=None, max_results=30):
         """
         Search theo 3 trường hợp: chỉ có ảnh, chỉ có text hoặc có cả 2
         :param image_path: đường dẫn tới ảnh
@@ -92,24 +98,34 @@ class SystemSearch:
         :return: max_results dict cho kết quả
         """
         try:
+            objects = None  # Khởi tạo mặc định
+
+            # Chuẩn hóa text_query rỗng thành None
+            if text_query is not None and text_query.strip() == "":
+                text_query = None
+
             # Trường hợp chỉ có text không có image
-            if text_query and image_path is None:
+            if text_query and not image_path:
                 emb_text = self.clipmodel.encode_text(text_query)
-                objects =  self.search_text_only(emb_text, max_results)
-            elif image_path and text_query is None:  # Trường hợp chỉ có image
+                objects = self.search_text_only(emb_text, max_results)
+            elif image_path and not text_query:  # Trường hợp chỉ có image
                 img = Image.open(image_path).convert('RGB')
                 img_np = np.array(img)
                 emb_img_reid = self.reidmodel.extract(img_np)[0]
                 emb_img_clip = self.clipmodel.encode_image(img_np)
                 objects = self.search_image_only(emb_img_reid, emb_img_clip, max_results)
-            else: # Có cả 2
+            elif text_query and image_path:  # Có cả 2
                 emb_text = self.clipmodel.encode_text(text_query)
                 img = Image.open(image_path).convert('RGB')
                 img_np = np.array(img)
                 emb_img_reid = self.reidmodel.extract(img_np)[0]
-                objects =  self.search_hybrid(emb_img_reid, emb_text, max_results)
+                objects = self.search_hybrid(emb_img_reid, emb_text, max_results)
 
-            object_dict =  self.parse_qdrant_outputs(objects)
+            if objects is None:
+                logger.warning("No search condition matched")
+                return []
+
+            object_dict = self.parse_qdrant_outputs(objects)
 
             if not object_dict:
                 return []
@@ -140,7 +156,7 @@ class SystemSearch:
             logger.error(f"Error during search: {e}")
             return []
 
-    def search_text_only(self, vector_text, limit=10):
+    def search_text_only(self, vector_text, limit=30):
         return self.client.query_points_groups(
             collection_name=self.collection_name,
             query=vector_text,
@@ -174,7 +190,7 @@ class SystemSearch:
             group_size=1,
         )
 
-    def search_hybrid(self, vector_reid, vector_clip_text, limit=10):
+    def search_hybrid(self, vector_reid, vector_clip_text, limit=30):
         return self.client.query_points_groups(
             collection_name=self.collection_name,
             prefetch= [

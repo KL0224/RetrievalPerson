@@ -28,57 +28,50 @@
             <img src="{{ url_for('static', filename='assets/SmartTraceRetrieval.png') }}" alt="Logo" />
           </div>
         </div>
-        <h1>Forensic Audit - <span id="headerId">ID</span></h1>
+
+        <div class="header-info">
+            <span class="header-label">TARGET ID:</span>
+            <span class="header-val" id="headerId">LOADING...</span>
+        </div>
       </div>
     </header>
 
     <div class="detail-grid-layout">
       <aside class="sidebar-fixed">
         <div class="track-box">
+
           <div class="img-scale-wrapper-detail">
-            <img id="targetImg" src="" class="track-img" alt="Target" onerror="this.style.display='none'"/>
+             <img id="targetImg" class="track-img" src="" alt="Target Object" onerror="this.style.display='none'">
           </div>
 
           <div class="confidence-bar">
-            <span>Confidence</span>
-            <span id="targetConf" class="conf-value">0%</span>
+            <span>CONFIDENCE SCORE</span>
+            <span class="conf-value" id="targetConf">--%</span>
           </div>
-        </div>
 
-        <div class="info-block">
-          <span class="info-label">Global ID</span>
-          <div class="info-text" id="displayId">-</div>
-        </div>
+          <div class="info-block">
+            <span class="info-label">Global Identity</span>
+            <div class="info-text" id="displayId">--</div>
+          </div>
 
-        <div class="summary-box">
-          <div class="summary-value" id="nodeCount">00</div>
-          <span class="info-label">Nodes Detected</span>
-        </div>
+          <div class="summary-box">
+             <span class="info-label">Total Sightings</span>
+             <div class="summary-value" id="nodeCount">00</div>
+          </div>
 
-        <div class="stats-table-container" style="margin-top: 20px;">
-             <h4 class="section-title" style="margin-bottom: 10px; font-size: 0.8rem;">APPEARANCE HISTORY</h4>
-             <table class="stats-table" style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
-                 <thead>
-                     <tr style="background: #f1f5f9; text-align: left;">
-                         <th style="padding: 8px; border-bottom: 2px solid #e2e8f0;">Sequence</th>
-                         <th style="padding: 8px; border-bottom: 2px solid #e2e8f0;">Cameras</th>
-                     </tr>
-                 </thead>
-                 <tbody id="statsTableBody">
-                     </tbody>
-             </table>
+          <div class="info-block">
+            <span class="info-label">Sighting Distribution</span>
+            <table class="stats-table">
+                <tbody id="statsTableBody">
+                    </tbody>
+            </table>
+          </div>
         </div>
       </aside>
 
       <main class="detail-scrollable">
-
-        <section class="forensic-section">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-              <h3 class="section-title" style="margin: 0;">SURVEILLANCE FILTER</h3>
-          </div>
-
-          <div class="filter-bar">
-            <div class="filter-group">
+        <section class="filter-bar">
+          <div class="filter-group">
                 <label>Select Sequence:</label>
                 <select id="seqSelect" class="filter-select">
                     <option value="all">All Sequences</option>
@@ -90,7 +83,6 @@
                     <option value="all">All Cameras</option>
                 </select>
             </div>
-          </div>
         </section>
 
         <section class="forensic-section">
@@ -110,15 +102,6 @@
         <video id="modalVideoPlayer" controls playsinline width="100%"></video>
       </div>
     </div>
-
-    <footer class="app-footer">
-      <div class="footer-content">
-        <div class="footer-logo">
-          <strong>SmartTrace</strong>
-        </div>
-        <div class="footer-legal">© SYSTEM INTELLIGENCE</div>
-      </div>
-    </footer>
 
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
   </body>

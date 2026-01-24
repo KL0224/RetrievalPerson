@@ -132,7 +132,7 @@ def api_search():
         results = system_search.search(
             image_path=image_path,
             text_query=text_query,
-            max_results=10
+            max_results=100
         ) or []
 
         payload = []
@@ -162,7 +162,8 @@ def api_get_video():
     obj_id = data.get("obj_id")
     tracks = data.get("tracks")
 
-    if not all([global_id, seq_id, cam_id, obj_id, tracks]):
+    required = ["global_id", "seq_id", "cam_id", "obj_id"]
+    if any(data.get(k) is None for k in required) or not tracks:
         return jsonify({"error": "Missing required fields"}), 400
 
     track = next(
